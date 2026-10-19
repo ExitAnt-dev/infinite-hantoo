@@ -33,7 +33,7 @@ https://render.com/deploy?repo=https://github.com/ExitAnt-dev/infinite-hantoo
 |---|---|
 | `HANTOO_APP_KEY` | KIS Developers 앱키(실전투자) |
 | `HANTOO_APP_SECRET` | KIS Developers 앱시크릿 |
-| `HANTOO_ACCOUNT_NO` | 계좌번호 10자리 — `12345678-01` 또는 `1234567801` |
+| `HANTOO_ACCOUNT_NO` | 계좌번호 8자리(`12345678`) — 상품코드까지 10자리(`12345678-01`)로 넣어도 됩니다 |
 | `TELEGRAM_BOT_TOKEN` | [@BotFather](https://t.me/BotFather) 가 발급한 봇 토큰 |
 | `TELEGRAM_CHAT_ID` | 내 텔레그램 채팅 ID — 봇은 다른 사람의 메시지에 답하지 않습니다 |
 
@@ -44,14 +44,16 @@ https://render.com/deploy?repo=https://github.com/ExitAnt-dev/infinite-hantoo
 
 - 모의투자는 [KIS Developers](https://apiportal.koreainvestment.com) 에서 **모의투자 신청**과 **모의투자용 앱키**, **모의투자 계좌번호**가 필요합니다.
 - **모의투자만 쓸 때:** 위 표의 `HANTOO_APP_KEY` · `HANTOO_APP_SECRET` · `HANTOO_ACCOUNT_NO` 에 모의투자용 값을 넣고 「예」를 고르면 됩니다.
-- **실전 · 모의를 둘 다 둘 때:** 위 칸에는 실전 값을 두고, Render 서비스 → **Environment** 에 아래 셋을 더한 뒤 재시작합니다.
+- **실전 · 모의를 둘 다 둘 때:** 위 칸에는 실전 값을 두고, Render 서비스 → **Environment** 에 아래 값을 더해 저장합니다(저장하면 다시 시작합니다).
+  넣지 않은 칸은 위 칸의 값을 모의투자에도 씁니다.
 
 | 변수(선택) | 넣을 값 |
 |---|---|
 | `HANTOO_MOCK_APP_KEY` | 모의투자용 앱키 |
 | `HANTOO_MOCK_APP_SECRET` | 모의투자용 앱시크릿 |
-| `HANTOO_MOCK_ACCOUNT_NO` | 모의투자 계좌번호 10자리 |
+| `HANTOO_MOCK_ACCOUNT_NO` | 모의투자 계좌번호 8자리 |
 
+- 연결이 안 되면 봇이 어느 칸이 비었는지 · 읽을 수 없는지 이름으로 알려 줍니다.
 - 모드를 바꾸려면 메인 메뉴 → **처음부터 다시 설정** → 약관 동의 → 모드를 다시 고릅니다. 운용 중인 장부가 있으면 먼저 묻고, 바꾸면 봇이 건
   익절 주문만 취소하고 이전 계좌의 보유 주식은 그대로 둔 채 손을 뗍니다.
 
