@@ -1,0 +1,64 @@
+# ExitAnt USA DCA (분할 매수) — 한국투자증권
+
+한국투자증권 계좌로 미국 ETF **TQQQ · SOXL** 을 현물로 분할 매수하는 자동매매 봇을 **내 Render 계정**에
+백그라운드 워커로 띄웁니다. 봇은 미리 빌드한 Docker 이미지로 돌고, 이 저장소에는 **Render Blueprint(`render.yaml`)만**
+있습니다 — 소스 코드는 없습니다.
+
+## Render 에 배포
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ExitAnt-dev/infinite-hantoo)
+
+```
+https://render.com/deploy?repo=https://github.com/ExitAnt-dev/infinite-hantoo
+```
+
+1. 버튼(또는 링크)을 누르고 Render 에 로그인합니다.
+2. Render 가 `render.yaml` 을 읽어 **백그라운드 워커 하나**를 제안합니다.
+3. 아래 환경변수 5개를 입력합니다. `sync: false` 라 배포 화면에서 묻고 **내 Render 계정에만** 저장됩니다.
+4. **Apply** 를 누르고 첫 배포가 끝날 때까지 기다립니다.
+5. 텔레그램에서 봇에게 **`/start`** 를 보냅니다.
+
+## 배포 전에 준비할 것
+
+- **해외주식(미국) 거래가 되는 한국투자증권 계좌.**
+- **KIS Developers 앱키 · 앱시크릿(실전투자).** [KIS Developers](https://apiportal.koreainvestment.com) 에서 API 신청 후 발급합니다.
+- **달러(USD) 예수금** — 또는 한국투자증권 **통합증거금 서비스** 신청(원화로 달러 주문). 둘 다 없으면 매수가 건너뛰어지고 봇이 안내합니다.
+
+## 환경변수
+
+| 변수 | 넣을 값 |
+|---|---|
+| `HANTOO_APP_KEY` | KIS Developers 앱키(실전투자) |
+| `HANTOO_APP_SECRET` | KIS Developers 앱시크릿 |
+| `HANTOO_ACCOUNT_NO` | 계좌번호 10자리 — `12345678-01` 또는 `1234567801` |
+| `TELEGRAM_BOT_TOKEN` | [@BotFather](https://t.me/BotFather) 가 발급한 봇 토큰 |
+| `TELEGRAM_CHAT_ID` | 내 텔레그램 채팅 ID — 봇은 다른 사람의 메시지에 답하지 않습니다 |
+
+## 봇이 하는 일
+
+- 매 미국 거래일 정규장 마감 직전(15:54 ET)에 정한 금액을 **나눠서 삽니다**(하락한 날에 더, 오른 날에 덜). 한국투자증권 미국주식에는
+  시장가가 없어 현재가보다 1% 높은 지정가로 바로 체결되게 냅니다.
+- 산 묶음마다 **익절 지정가**를 겁니다. 지정가는 당일 만료라 다음 거래일 장 시작 직후(09:31 ET)에 같은 가격으로 다시 겁니다.
+- 마감 뒤(16:05 ET) 정산합니다 — 체결 확인, 자산이 정한 비율만큼 늘면 일부를 금고에 보관, 정한 비율만큼 줄면 금고에서 다시 투입.
+- 미국 주식은 **1주 단위**로만 삽니다. 운용 금액 × 매수 비율이 1주 가격보다 작으면 그날 매수를 건너뜁니다.
+- 매수 여력(USD)이 그날 나갈 수 있는 가장 큰 매수분보다 적으면 그날은 매수하지 않고 알립니다(OKX · Gate 봇과 같은 규칙).
+- 조기 마감일(13:00 ET)에는 그 마감에 맞춰 매수 · 정산 시각을 함께 당깁니다.
+- 설정은 전부 텔레그램에서 합니다(한국어). TanQuant 백테스트 세팅을 붙여 넣어 한 번에 넣을 수도 있습니다.
+
+## 동작 방식
+
+- **미리 빌드한 이미지.** 워커는 Docker Hub 의 `docker.io/exitant/exitant-hantoo-infinite:latest` 를 받습니다. 이미지에는
+  컴파일된 실행 파일만 있고 파이썬 소스는 없습니다.
+- **키는 내 것.** 키는 내 Render 환경변수에만 들어가고 한국투자증권 외에는 어디로도 보내지 않습니다.
+- **디스크 불필요.** 설정과 장부는 봇이 텔레그램에 **고정해 두는 백업 메시지**로 재시작 뒤 되살립니다 — 그 고정 메시지를 지우지 마세요.
+
+## 주의
+
+- **인스턴스는 1개로 둡니다.** 2개 이상이면 텔레그램 `getUpdates` 충돌로 봇이 답하지 않습니다(`numInstances: 1`).
+- Render **백그라운드 워커에는 무료 요금제가 없습니다** — Starter 이상을 고르세요.
+- **첫 시작부터 실거래입니다.** 작은 금액으로 시작해 매수 → 익절 한 바퀴를 계좌에서 확인한 뒤 늘리세요.
+- TQQQ · SOXL 은 **3배 레버리지 ETF** 라 값이 크게 움직입니다. 투자 판단과 손실의 책임은 이용자에게 있습니다.
+
+---
+
+Blueprint 명세: <https://render.com/docs/blueprint-spec> · 미리 빌드한 이미지: <https://render.com/docs/deploying-an-image>
